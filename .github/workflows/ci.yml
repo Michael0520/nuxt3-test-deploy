@@ -1,0 +1,48 @@
+# 定義一個名為 CI 的工作流程
+name: CI
+
+# 指定觸發這個工作流程的事件
+on:
+  push:
+    branches:
+      - main  # 當代碼被推送到 main 分支時觸發
+
+  pull_request:
+    branches:
+      - main  # 當針對 main 分支發起 pull 請求時觸發
+
+# 工作定義開始
+jobs:
+  # 第一個工作：lint
+  lint:
+    runs-on: ubuntu-latest  # 指定運行環境為最新版本的 Ubuntu
+    steps:
+      - uses: actions/checkout@v3  # 檢出代碼
+      - uses: pnpm/action-setup@v2  # 設置 pnpm
+      - uses: actions/setup-node@v3  # 設置 Node.js 環境
+        with:
+          node-version: 'lts/*'  # 使用最新的長期支持版本
+          cache: pnpm  # 啟用 pnpm 的緩存
+
+      - name: Install  # 安裝依賴
+        run: pnpm install
+
+      - name: Lint  # 執行 lint 操作
+        run: pnpm run lint
+
+  # 第二個工作：typecheck
+  typecheck:
+    runs-on: ubuntu-latest  # 同上，使用最新版本 Ubuntu
+    steps:
+      - uses: actions/checkout@v3  # 檢出代碼
+      - uses: pnpm/action-setup@v2  # 設置 pnpm
+      - uses: actions/setup-node@v3  # 設置 Node.js 環境
+        with:
+          node-version: 'lts/*'  # 使用最新的長期支持版本
+          cache: pnpm  # 啟用 pnpm 的緩存
+
+      - name: Install  # 安裝依賴
+        run: pnpm install
+
+      - name: Typecheck  # 執行類型檢查
+        run: pnpm run typecheck
