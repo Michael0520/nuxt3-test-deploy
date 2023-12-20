@@ -1,6 +1,7 @@
 import { pwa } from './config/pwa'
 import { appDescription } from './constants/index'
-const path = require('path');
+
+const path = require('node:path')
 
 export default defineNuxtConfig({
   // TODO: Remove hash values from output file names generated after running `npm run build`.
@@ -21,42 +22,71 @@ export default defineNuxtConfig({
   //     },
   //   },
   // },
+
+  build: {
+    analyze: {},
+    // To remove hash values in Nuxt 2, you can use the following configuration:
+    // https://v2.nuxt.com/docs/configuration-glossary/configuration-build/#filenames
+    // filenames: {
+    //   app: () => '[name].js',
+    //   chunk: () => '[name].js',
+    //   css: () => '[name].css',
+    //   img: () => '[path][name].[extname]',
+    //   font: () => '[path][name].[extname]',
+    //   video: () => '[path][name].[extname]'
+    // }
+
+    // Try it with stackflow answer
+    // https://stackoverflow.com/questions/77656473/how-to-custom-output-file-naming-in-nuxt-3/77656507#77656507
+    // Rollup options to control output file names
+    // rollupConfig: {
+    //   output: {
+    //     entryFileNames: '[name].js',
+    //     chunkFileNames: '[name].js',
+    //     assetFileNames: ({ name }) => {
+    //       // Define naming convention based on the file type
+    //       if (/\.css$/i.test(name))
+    //         return '[name].css'
+
+    //       if (/\.(pngjpe?ggifsvgwebp)$/i.test(name))
+    //         return 'img/[name][ext]'
+
+    //       if (/\.(woffwoff2eotttfotf)$/i.test(name))
+    //         return 'fonts/[name][ext]'
+
+    //       if (/\.(mp4webmogv)$/i.test(name))
+    //         return 'videos/[name][ext]'
+
+    //       // Fallback for other assets
+    //       return '[name][ext]'
+    //     },
+    //   },
+    // },
+  },
   vite: {
     build: {
-      // To remove hash values in Nuxt 2, you can use the following configuration:
-      // https://v2.nuxt.com/docs/configuration-glossary/configuration-build/#filenames
-      // filenames: {
-      //   app: () => '[name].js',
-      //   chunk: () => '[name].js',
-      //   css: () => '[name].css',
-      //   img: () => '[path][name].[ext]',
-      //   font: () => '[path][name].[ext]',
-      //   video: () => '[path][name].[ext]'
-      // }
-
-      // Try it with stackflow answer
-      // https://stackoverflow.com/questions/77656473/how-to-custom-output-file-naming-in-nuxt-3/77656507#77656507
-      // Rollup options to control output file names
-      rollupConfig: {
+      rollupOptions: {
         output: {
-          entryFileNames: '[name].js',
-          chunkFileNames: '[name].js',
-          assetFileNames: ({ name }) => {
-            // Define naming convention based on the file type
-            if (/\.css$/i.test(name)) {
-              return '[name].css';
-            }
-            if (/\.(pngjpe?ggifsvgwebp)$/i.test(name)) {
-              return 'img/[name][extname]';
-            }
-            if (/\.(woffwoff2eotttfotf)$/i.test(name)) {
-              return 'fonts/[name][extname]';
-            }
-            if (/\.(mp4webmogv)$/i.test(name)) {
-              return 'videos/[name][extname]';
-            }
-            // Fallback for other assets
-            return '[name][extname]';
+          entryFileNames: `assets/[name].js`,
+          chunkFileNames: `assets/[name].js`,
+
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name.endsWith('.css'))
+              return 'assets/css/[name][extname]'
+
+            if (/\.(png|jpe?g|gif|svg|webp)$/i.test(assetInfo.name))
+
+              return 'assets/img/[name][extname]'
+
+            if (/\.(woff|woff2|eot|ttf|otf)$/i.test(assetInfo.name))
+
+              return 'assets/fonts/[name][extname]'
+
+            if (/\.(mp4|webm|ogv)$/i.test(assetInfo.name))
+
+              return 'assets/videos/[name][extname]'
+
+            return 'assets/[name][extname]'
           },
         },
       },
