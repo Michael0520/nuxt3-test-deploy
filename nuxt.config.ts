@@ -1,92 +1,61 @@
+import { posix } from 'node:path'
+import { useNuxt } from '@nuxt/kit'
 import { pwa } from './config/pwa'
 import { appDescription } from './constants/index'
 
-const path = require('node:path')
+// const path = require('node:path')
 
 export default defineNuxtConfig({
-  // TODO: Remove hash values from output file names generated after running `npm run build`.
-  // Modify the output file naming to remove the hash at the end.
-  // For example: demoasjd9d19.css => demo.css
-
-  // If using Astro or Vue, you can use this method to remove hash values.
-  // Example for Vite build configuration:
-  // vite: {
-  //   build: {
-  //     rollupOptions: {
-  //       output: {
-  //         manualChunks: 'app',
-  //         entryFileNames: `assets/[name].js`,
-  //         chunkFileNames: `assets/[name].js`,
-  //         assetFileNames: `assets/[name].[ext]`,
-  //       },
-  //     },
-  //   },
-  // },
-
   build: {
     analyze: {},
-    // To remove hash values in Nuxt 2, you can use the following configuration:
-    // https://v2.nuxt.com/docs/configuration-glossary/configuration-build/#filenames
-    // filenames: {
-    //   app: () => '[name].js',
-    //   chunk: () => '[name].js',
-    //   css: () => '[name].css',
-    //   img: () => '[path][name].[extname]',
-    //   font: () => '[path][name].[extname]',
-    //   video: () => '[path][name].[extname]'
-    // }
-
-    // Try it with stackflow answer
-    // https://stackoverflow.com/questions/77656473/how-to-custom-output-file-naming-in-nuxt-3/77656507#77656507
-    // Rollup options to control output file names
-    // rollupConfig: {
-    //   output: {
-    //     entryFileNames: '[name].js',
-    //     chunkFileNames: '[name].js',
-    //     assetFileNames: ({ name }) => {
-    //       // Define naming convention based on the file type
-    //       if (/\.css$/i.test(name))
-    //         return '[name].css'
-
-    //       if (/\.(pngjpe?ggifsvgwebp)$/i.test(name))
-    //         return 'img/[name][ext]'
-
-    //       if (/\.(woffwoff2eotttfotf)$/i.test(name))
-    //         return 'fonts/[name][ext]'
-
-    //       if (/\.(mp4webmogv)$/i.test(name))
-    //         return 'videos/[name][ext]'
-
-    //       // Fallback for other assets
-    //       return '[name][ext]'
-    //     },
-    //   },
-    // },
   },
+  // nitro
   vite: {
     build: {
       rollupOptions: {
+        // output: {
+        //   entryFileNames: `assets/[name].js`,
+        //   chunkFileNames: `assets/[name].js`,
+
+        //   assetFileNames: (assetInfo) => {
+        //     if (assetInfo.name.endsWith('.css'))
+        //       return 'assets/css/[name][extname]'
+
+        //     if (/\.(png|jpe?g|gif|svg|webp)$/i.test(assetInfo.name))
+
+        //       return 'assets/img/[name][extname]'
+
+        //     if (/\.(woff|woff2|eot|ttf|otf)$/i.test(assetInfo.name))
+
+        //       return 'assets/fonts/[name][extname]'
+
+        //     if (/\.(mp4|webm|ogv)$/i.test(assetInfo.name))
+
+        //       return 'assets/videos/[name][extname]'
+
+        //     return 'assets/[name][extname]'
+        //   },
+        // },
         output: {
-          entryFileNames: `assets/[name].js`,
-          chunkFileNames: `assets/[name].js`,
-
+          entryFileNames: () => posix.join(String(useNuxt().options.vite.build?.assetsDir), '[name].js'),
+          chunkFileNames: () => posix.join(String(useNuxt().options.vite.build?.assetsDir), '[name].js'),
           assetFileNames: (assetInfo) => {
-            if (assetInfo.name.endsWith('.css'))
-              return 'assets/css/[name][extname]'
+            const resolver = (filePath: string) => posix.join(String(useNuxt().options.vite.build?.assetsDir), filePath)
+            const assetName = assetInfo.name ?? ''
 
-            if (/\.(png|jpe?g|gif|svg|webp)$/i.test(assetInfo.name))
+            if (assetName.endsWith('.css'))
+              return resolver('/css/[name][extname]')
 
-              return 'assets/img/[name][extname]'
+            if (/\.(png|jpe?g|gif|svg|webp)$/i.test(assetName))
+              return resolver('/img/[name][extname]')
 
-            if (/\.(woff|woff2|eot|ttf|otf)$/i.test(assetInfo.name))
+            if (/\.(woff|woff2|eot|ttf|otf)$/i.test(assetName))
+              return resolver('/fonts/[name][extname]')
 
-              return 'assets/fonts/[name][extname]'
+            if (/\.(mp4|webm|ogv)$/i.test(assetName))
+              return resolver('/videos/[name][extname]')
 
-            if (/\.(mp4|webm|ogv)$/i.test(assetInfo.name))
-
-              return 'assets/videos/[name][extname]'
-
-            return 'assets/[name][extname]'
+            return resolver('[name][extname]')
           },
         },
       },
